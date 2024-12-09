@@ -1,10 +1,10 @@
 const express = require('express');
-const helloworld = require('./routes/helloworld');
+const products = require('./routes/productsRoutes');
 
 const app = express();
 
 app.use(express.json());
 
-app.use('/', helloworld);
+app.use('/products', products);
 
 app.listen(3000, () => console.log('Server Running'));
