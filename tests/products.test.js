@@ -99,3 +99,30 @@ describe('Update operations', () => {
 			.expect(404, done);
 	});
 });
+
+describe('Delete operations', () => {
+	test('should delete product by id', async () => {
+		const productIdToDelete = 11;
+
+		await request(app)
+			.delete(`/products/${productIdToDelete}`)
+			.expect(200)
+			.expect({
+				success: true,
+				message: 'Product deleted successfully',
+			});
+
+		expect(
+			db.find((product) => product.id === productIdToDelete)
+		).toBeUndefined();
+	});
+
+	test('should fail to delete non-existent product', async () => {
+		const productIdToDelete = 12;
+
+		await request(app)
+			.delete(`/products/${productIdToDelete}`)
+			.expect(404)
+			.expect({ success: false, message: 'Product not found' });
+	});
+});
