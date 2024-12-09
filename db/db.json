@@ -1,0 +1,62 @@
+[
+	{
+		"id": 1,
+		"name": "Wireless Headphones",
+		"price": 99.99,
+		"stock": 25
+	},
+	{
+		"id": 2,
+		"name": "Gaming Mouse",
+		"price": 49.99,
+		"stock": 40
+	},
+	{
+		"id": 3,
+		"name": "Mechanical Keyboard",
+		"price": 89.99,
+		"stock": 15
+	},
+	{
+		"id": 4,
+		"name": "4K Monitor",
+		"price": 299.99,
+		"stock": 10
+	},
+	{
+		"id": 5,
+		"name": "Smartphone Stand",
+		"price": 19.99,
+		"stock": 100
+	},
+	{
+		"id": 6,
+		"name": "USB-C Hub",
+		"price": 34.99,
+		"stock": 50
+	},
+	{
+		"id": 7,
+		"name": "Portable SSD",
+		"price": 129.99,
+		"stock": 20
+	},
+	{
+		"id": 8,
+		"name": "Webcam",
+		"price": 59.99,
+		"stock": 30
+	},
+	{
+		"id": 9,
+		"name": "Noise-Cancelling Earbuds",
+		"price": 79.99,
+		"stock": 35
+	},
+	{
+		"id": 10,
+		"name": "Smart Light Bulb",
+		"price": 14.99,
+		"stock": 200
+	}
+]
