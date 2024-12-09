@@ -25,8 +25,24 @@ function getProductById(req, res) {
 	}
 }
 
+function updateProductById(req, res) {
+	const { body } = req;
+	const { id } = req.params;
+	const productIndex = db.findIndex((product) => product.id === Number(id));
+
+	if (productIndex === -1) {
+		res.status(404).json({ success: false, message: 'Product not found' });
+	} else {
+		const updatedProduct = { ...db[id - 1], ...body };
+		db[id - 1] = updatedProduct;
+
+		res.status(200).json({ success: true });
+	}
+}
+
 module.exports = {
 	addProduct,
 	getProductById,
 	getAllProducts,
+	updateProductById,
 };

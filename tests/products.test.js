@@ -61,3 +61,41 @@ describe('Read operations', () => {
 			.expect(404, done);
 	});
 });
+
+describe('Update operations', () => {
+	test('should update product by id', (done) => {
+		const updatedProduct = {
+			id: 11,
+			name: 'Ergonomic Office Chair',
+			price: 149.99,
+			stock: 12,
+		};
+
+		request(app)
+			.patch(`/products/${updatedProduct.id}`)
+			.type('json')
+			.send(updatedProduct)
+			.then(() => {
+				request(app)
+					.get(`/products/${updatedProduct.id}`)
+					.expect({ success: true, product: updatedProduct })
+					.expect(200, done);
+			});
+	});
+
+	test('should fail to update non-existent product', (done) => {
+		const updatedProduct = {
+			id: 12,
+			name: 'Ergonomic Office Chair',
+			price: 149.99,
+			stock: 12,
+		};
+
+		request(app)
+			.patch(`/products/${updatedProduct.id}`)
+			.type('json')
+			.send(updatedProduct)
+			.expect({ success: false, message: 'Product not found' })
+			.expect(404, done);
+	});
+});
