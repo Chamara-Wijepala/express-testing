@@ -1,29 +1,77 @@
 import request from 'supertest';
 import app from './test-app';
 import products from '../routes/productsRoutes';
+import prisma from '../db/prisma';
 import db from '../db/db.json';
 
 app.use('/products', products);
 
-describe('Create operations', () => {
-	test('should add new product to list', (done) => {
+describe('POST /products/', () => {
+	let newProductId: number;
+	it('returns an error when no data is sent', async () => {
+		const response = await request(app).post('/products/').type('json');
+
+		expect(response.status).toBe(400);
+		expect(response.body).toEqual({
+			success: false,
+			message: 'Received data is in an incorrect format',
+		});
+	});
+	it('returns an error when an empty object is sent', async () => {
+		const response = await request(app)
+			.post('/products/')
+			.type('json')
+			.send({});
+
+		expect(response.status).toBe(400);
+		expect(response.body).toEqual({
+			success: false,
+			message: 'Received data is in an incorrect format',
+		});
+	});
+	it('returns an error when data with incorrect types are sent', async () => {
 		const newProduct = {
-			id: 11,
+			name: 'Ergonomic Office Chair',
+			price: '199.99',
+			stock: true,
+		};
+		const response = await request(app)
+			.post('/products/')
+			.type('json')
+			.send(newProduct);
+
+		expect(response.status).toBe(400);
+		expect(response.body).toEqual({
+			success: false,
+			message: 'Received data is in correct format but have incorrect types',
+		});
+	});
+	it('adds new product to database when valid data is sent', async () => {
+		const newProduct = {
 			name: 'Ergonomic Office Chair',
 			price: 199.99,
 			stock: 12,
 		};
-
-		request(app)
+		const response = await request(app)
 			.post('/products/')
 			.type('json')
-			.send(newProduct)
-			.then(() => {
-				request(app)
-					.get(`/products/${newProduct.id}`)
-					.expect({ success: true, product: db[newProduct.id - 1] })
-					.expect(200, done);
+			.send(newProduct);
+
+		expect(response.status).toBe(200);
+		expect(response.body).toEqual({
+			success: true,
+			newProductId: expect.any(Number),
+		});
+
+		newProductId = response.body.newProductId;
+	});
+
+	afterAll(async () => {
+		if (newProductId) {
+			await prisma.product.delete({
+				where: { id: newProductId },
 			});
+		}
 	});
 });
 

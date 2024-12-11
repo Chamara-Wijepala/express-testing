@@ -7,7 +7,7 @@
 	"scripts": {
 		"test": "jest",
 		"watch": "jest --watchAll",
-		"start": "nodemon app.js"
+		"start": "tsx app.js"
 	},
 	"prisma": {
 		"seed": "tsx db/seed.ts"

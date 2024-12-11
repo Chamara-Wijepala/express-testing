@@ -1,12 +1,25 @@
-import type { Request, Response } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import db from '../db/db.json';
+import prisma from '../db/prisma';
+import { validateProduct } from '../services/productsServices';
 
-function addProduct(req: Request, res: Response) {
+async function addProduct(req: Request, res: Response, next: NextFunction) {
 	const { body } = req;
 
-	db.push(body);
+	const validation = validateProduct(body);
+	if (!validation.isValid) {
+		res.status(400).json({ success: false, message: validation.message });
+	}
 
-	res.status(200).json({ success: true });
+	try {
+		const newProduct = await prisma.product.create({
+			data: body,
+		});
+
+		res.status(200).json({ success: true, newProductId: newProduct.id });
+	} catch (error) {
+		next(error);
+	}
 }
 
 function getAllProducts(req: Request, res: Response) {
