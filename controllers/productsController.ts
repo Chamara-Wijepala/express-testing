@@ -53,18 +53,41 @@ async function getProductById(req: Request, res: Response) {
 	}
 }
 
-function updateProductById(req: Request, res: Response) {
+async function updateProductById(
+	req: Request,
+	res: Response,
+	next: NextFunction
+) {
 	const { body } = req;
 	const id = Number(req.params.id);
-	const productIndex = db.findIndex((product) => product.id === Number(id));
 
-	if (productIndex === -1) {
-		res.status(404).json({ success: false, message: 'Product not found' });
-	} else {
-		const updatedProduct = { ...db[id - 1], ...body };
-		db[id - 1] = updatedProduct;
+	if (Number.isNaN(id)) {
+		res
+			.status(400)
+			.json({ success: false, message: 'Received invalid product id' });
+		return;
+	}
 
-		res.status(200).json({ success: true });
+	const validation = validateProduct(body);
+	if (!validation.isValid) {
+		res.status(400).json({ success: false, message: validation.message });
+		return;
+	}
+
+	try {
+		const updatedProduct = await prisma.product.update({
+			where: {
+				id: id,
+			},
+			data: body,
+		});
+
+		res.status(200).json({ success: true, productId: updatedProduct.id });
+	} catch (err) {
+		res.status(404).json({
+			success: false,
+			message: 'Product not found',
+		});
 	}
 }
 

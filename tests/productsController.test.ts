@@ -75,7 +75,7 @@ describe('POST /products/', () => {
 	});
 });
 
-describe.only('GET', () => {
+describe('GET', () => {
 	describe('/products/', () => {
 		it('returns a list of all products', async () => {
 			const response = await request(app).get('/products/');
@@ -143,41 +143,90 @@ describe.only('GET', () => {
 	});
 });
 
-describe('Update operations', () => {
-	test('should update product by id', (done) => {
-		const updatedProduct = {
-			id: 11,
-			name: 'Ergonomic Office Chair',
-			price: 149.99,
-			stock: 12,
-		};
+describe('PATCH /products/:id', () => {
+	let newProductId: number;
+	const update = {
+		name: 'Ergonomic Office Chair',
+		price: 149.99,
+		stock: 10,
+	};
 
-		request(app)
-			.patch(`/products/${updatedProduct.id}`)
-			.type('json')
-			.send(updatedProduct)
-			.then(() => {
-				request(app)
-					.get(`/products/${updatedProduct.id}`)
-					.expect({ success: true, product: updatedProduct })
-					.expect(200, done);
-			});
+	beforeAll(async () => {
+		const product = await prisma.product.create({
+			data: {
+				name: 'Ergonomic Office Chair',
+				price: 199.99,
+				stock: 12,
+			},
+			select: {
+				id: true,
+			},
+		});
+		newProductId = product.id;
 	});
 
-	test('should fail to update non-existent product', (done) => {
-		const updatedProduct = {
-			id: 12,
-			name: 'Ergonomic Office Chair',
-			price: 149.99,
-			stock: 12,
-		};
+	it('returns an error when passed an invalid id', async () => {
+		const response = await request(app).patch('/products/foo');
 
-		request(app)
-			.patch(`/products/${updatedProduct.id}`)
+		expect(response.status).toBe(400);
+		expect(response.headers['content-type']).toMatch(/json/);
+		expect(response.body).toEqual({
+			success: false,
+			message: 'Received invalid product id',
+		});
+	});
+	it('fails to update a non-existent product', async () => {
+		const response = await request(app)
+			.patch('/products/0')
 			.type('json')
-			.send(updatedProduct)
-			.expect({ success: false, message: 'Product not found' })
-			.expect(404, done);
+			.send(update);
+
+		expect(response.status).toBe(404);
+		expect(response.headers['content-type']).toMatch(/json/);
+		expect(response.body).toEqual({
+			success: false,
+			message: 'Product not found',
+		});
+	});
+	it('returns an error when passed an object with the incorrect types', async () => {
+		const response = await request(app)
+			.patch('/products/' + newProductId)
+			.type('json')
+			.send({
+				name: 'Ergonomic Office Chair',
+				price: '149.99',
+				stock: true,
+			});
+
+		expect(response.status).toBe(400);
+		expect(response.headers['content-type']).toMatch(/json/);
+		expect(response.body).toEqual({
+			success: false,
+			message: 'Received data is in correct format but have incorrect types',
+		});
+	});
+	it('updates product by id', async () => {
+		const response = await request(app)
+			.patch('/products/' + newProductId)
+			.type('json')
+			.send(update);
+
+		expect(response.status).toBe(200);
+		expect(response.headers['content-type']).toMatch(/json/);
+		expect(response.body).toEqual({
+			success: true,
+			productId: expect.any(Number),
+		});
+
+		newProductId = response.body.productId;
+	});
+
+	afterAll(async () => {
+		if (newProductId) {
+			await prisma.product.delete({
+				where: { id: newProductId },
+			});
+		}
 	});
 });
 
