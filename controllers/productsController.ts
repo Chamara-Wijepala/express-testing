@@ -91,19 +91,41 @@ async function updateProductById(
 	}
 }
 
-function deleteProductById(req: Request, res: Response) {
+async function deleteProductById(req: Request, res: Response) {
 	const id = Number(req.params.id);
-	const productIndex = db.findIndex((product) => product.id === Number(id));
+	// const productIndex = db.findIndex((product) => product.id === Number(id));
 
-	if (productIndex === -1) {
-		res.status(404).json({ success: false, message: 'Product not found' });
-	} else {
-		db.splice(id - 1, 1);
-
+	if (Number.isNaN(id)) {
 		res
-			.status(200)
-			.json({ success: true, message: 'Product deleted successfully' });
+			.status(400)
+			.json({ success: false, message: 'Received invalid product id' });
+		return;
 	}
+
+	try {
+		await prisma.product.delete({
+			where: {
+				id: id,
+			},
+		});
+
+		res.status(200).json({ success: true });
+	} catch (err) {
+		res.status(404).json({
+			success: false,
+			message: 'Product not found',
+		});
+	}
+
+	// if (productIndex === -1) {
+	// 	res.status(404).json({ success: false, message: 'Product not found' });
+	// } else {
+	// 	db.splice(id - 1, 1);
+
+	// 	res
+	// 		.status(200)
+	// 		.json({ success: true, message: 'Product deleted successfully' });
+	// }
 }
 
 export default {

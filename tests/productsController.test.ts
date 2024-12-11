@@ -230,29 +230,48 @@ describe('PATCH /products/:id', () => {
 	});
 });
 
-describe('Delete operations', () => {
-	test('should delete product by id', async () => {
-		const productIdToDelete = 11;
+describe('DELETE /products/:id', () => {
+	let newProductId: number;
 
-		await request(app)
-			.delete(`/products/${productIdToDelete}`)
-			.expect(200)
-			.expect({
-				success: true,
-				message: 'Product deleted successfully',
-			});
-
-		expect(
-			db.find((product) => product.id === productIdToDelete)
-		).toBeUndefined();
+	beforeAll(async () => {
+		const product = await prisma.product.create({
+			data: {
+				name: 'Ergonomic Office Chair',
+				price: 199.99,
+				stock: 12,
+			},
+			select: {
+				id: true,
+			},
+		});
+		newProductId = product.id;
 	});
 
-	test('should fail to delete non-existent product', async () => {
-		const productIdToDelete = 12;
+	it('returns error when passed an invalid id', async () => {
+		const response = await request(app).delete('/products/foo');
 
-		await request(app)
-			.delete(`/products/${productIdToDelete}`)
-			.expect(404)
-			.expect({ success: false, message: 'Product not found' });
+		expect(response.status).toBe(400);
+		expect(response.headers['content-type']).toMatch(/json/);
+		expect(response.body).toEqual({
+			success: false,
+			message: 'Received invalid product id',
+		});
+	});
+	it('fails to delete non-existent product', async () => {
+		const response = await request(app).delete('/products/0');
+
+		expect(response.status).toBe(404);
+		expect(response.headers['content-type']).toMatch(/json/);
+		expect(response.body).toEqual({
+			success: false,
+			message: 'Product not found',
+		});
+	});
+	it('deletes product by id', async () => {
+		const response = await request(app).delete('/products/' + newProductId);
+
+		expect(response.status).toBe(200);
+		expect(response.headers['content-type']).toMatch(/json/);
+		expect(response.body).toEqual({ success: true });
 	});
 });
