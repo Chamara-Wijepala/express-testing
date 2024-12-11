@@ -1,6 +1,10 @@
-const db = require('../db/db.json');
+import db from '../db/db.json';
+import type { Order } from '../types';
 
-function validateOrder(order) {
+export function validateOrder(order: Order[]): {
+	isValid: boolean;
+	message?: string;
+} {
 	if (!order) {
 		return { isValid: false, message: 'No order received' };
 	}
@@ -24,9 +28,11 @@ function validateOrder(order) {
 		}
 		return { isValid: true };
 	}
+
+	return { isValid: false, message: 'There was an unknown error' };
 }
 
-function calculateTotalPrice(order) {
+export function calculateTotalPrice(order: Order[]) {
 	const shippingCost = 49.99;
 	let total = 0;
 
@@ -38,8 +44,3 @@ function calculateTotalPrice(order) {
 
 	return total.toFixed(2);
 }
-
-module.exports = {
-	validateOrder,
-	calculateTotalPrice,
-};

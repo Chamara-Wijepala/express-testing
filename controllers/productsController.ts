@@ -1,20 +1,20 @@
-const db = require('../db/db.json');
+import type { Request, Response } from 'express';
+import db from '../db/db.json';
 
-function addProduct(req, res) {
+function addProduct(req: Request, res: Response) {
 	const { body } = req;
 
 	db.push(body);
-	console.log(db);
 
 	res.status(200).json({ success: true });
 }
 
-function getAllProducts(req, res) {
+function getAllProducts(req: Request, res: Response) {
 	res.status(200).json({ success: true, products: db });
 }
 
-function getProductById(req, res) {
-	const product = db[req.params.id - 1];
+function getProductById(req: Request, res: Response) {
+	const product = db[Number(req.params.id) - 1];
 
 	if (!product) {
 		res
@@ -25,9 +25,9 @@ function getProductById(req, res) {
 	}
 }
 
-function updateProductById(req, res) {
+function updateProductById(req: Request, res: Response) {
 	const { body } = req;
-	const { id } = req.params;
+	const id = Number(req.params.id);
 	const productIndex = db.findIndex((product) => product.id === Number(id));
 
 	if (productIndex === -1) {
@@ -40,8 +40,8 @@ function updateProductById(req, res) {
 	}
 }
 
-function deleteProductById(req, res) {
-	const { id } = req.params;
+function deleteProductById(req: Request, res: Response) {
+	const id = Number(req.params.id);
 	const productIndex = db.findIndex((product) => product.id === Number(id));
 
 	if (productIndex === -1) {
@@ -55,7 +55,7 @@ function deleteProductById(req, res) {
 	}
 }
 
-module.exports = {
+export default {
 	addProduct,
 	getProductById,
 	getAllProducts,

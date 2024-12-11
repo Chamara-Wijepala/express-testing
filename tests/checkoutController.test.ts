@@ -1,6 +1,6 @@
-const request = require('supertest');
-const app = require('./test-app');
-const checkout = require('../routes/checkoutRoutes');
+import request from 'supertest';
+import app from './test-app';
+import checkout from '../routes/checkoutRoutes';
 
 app.use('/checkout', checkout);
 

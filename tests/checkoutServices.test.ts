@@ -1,10 +1,11 @@
-const {
+import {
 	validateOrder,
 	calculateTotalPrice,
-} = require('../services/checkoutServices');
+} from '../services/checkoutServices';
 
 describe('Tests for validateOrder', () => {
 	test('should invalidate non-existent order', () => {
+		// @ts-ignore
 		expect(validateOrder(undefined)).toEqual({
 			isValid: false,
 			message: 'No order received',
@@ -19,6 +20,7 @@ describe('Tests for validateOrder', () => {
 	});
 
 	test('should invalidate incorrect order', () => {
+		// @ts-ignore
 		expect(validateOrder([{ id: 1, foo: 'bar' }])).toEqual({
 			isValid: false,
 			message: 'The order does not match the correct format',

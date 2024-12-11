@@ -1,6 +1,6 @@
-const express = require('express');
-const products = require('./routes/productsRoutes');
-const checkout = require('./routes/checkoutRoutes');
+import express from 'express';
+import products from './routes/productsRoutes';
+import checkout from './routes/checkoutRoutes';
 
 const app = express();
 

@@ -1,5 +1,5 @@
-const express = require('express');
-const productsController = require('../controllers/productsController');
+import express from 'express';
+import productsController from '../controllers/productsController';
 
 const router = express.Router();
 
@@ -9,4 +9,4 @@ router.get('/:id', productsController.getProductById);
 router.patch('/:id', productsController.updateProductById);
 router.delete('/:id', productsController.deleteProductById);
 
-module.exports = router;
+export default router;

@@ -1,7 +1,7 @@
-const request = require('supertest');
-const app = require('./test-app');
-const products = require('../routes/productsRoutes');
-const db = require('../db/db.json');
+import request from 'supertest';
+import app from './test-app';
+import products from '../routes/productsRoutes';
+import db from '../db/db.json';
 
 app.use('/products', products);
 
