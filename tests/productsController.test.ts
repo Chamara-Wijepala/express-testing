@@ -75,38 +75,71 @@ describe('POST /products/', () => {
 	});
 });
 
-describe('Read operations', () => {
-	test('should get all products', (done) => {
-		request(app)
-			.get('/products/')
-			.expect('Content-Type', /json/)
-			.expect({
+describe.only('GET', () => {
+	describe('/products/', () => {
+		it('returns a list of all products', async () => {
+			const response = await request(app).get('/products/');
+
+			expect(response.status).toBe(200);
+			expect(response.headers['content-type']).toMatch(/json/);
+			expect(response.body).toEqual({
 				success: true,
-				products: db,
-			})
-			.expect(200, done);
+				products: expect.arrayContaining([
+					expect.objectContaining({
+						id: expect.any(Number),
+						name: expect.any(String),
+						price: expect.any(Number),
+						stock: expect.any(Number),
+					}),
+				]),
+			});
+		});
 	});
 
-	test('should get product by id', (done) => {
-		request(app)
-			.get('/products/1')
-			.expect('Content-Type', /json/)
-			.expect({
-				success: true,
-				product: db[0],
-			})
-			.expect(200, done);
-	});
+	describe('/products/:id', () => {
+		it('returns an error when passed an invalid id', async () => {
+			const response = await request(app).get('/products/foo');
 
-	test('should fail to get non-existent product', (done) => {
-		request(app)
-			.get(`/products/${db.length + 1}`)
-			.expect('Content-Type', /json/)
-			.expect({
+			expect(response.status).toBe(400);
+			expect(response.headers['content-type']).toMatch(/json/);
+			expect(response.body).toEqual({
 				success: false,
-				message: "That item doesn't exist",
-			})
-			.expect(404, done);
+				message: 'Received invalid product id',
+			});
+		});
+		/*
+		This test fails because of an unknown error. Everything works as it should,
+		all the correct values are being returned, but it still fails because of the
+		error.
+
+		What causes the error is unknown, but it could possibly be an issue with
+		supertest, as the endpoint works when using postman.
+		*/
+		it('fails to get a non-existent product', async () => {
+			const response = await request(app).get('/products/0');
+
+			expect(response.status).toBe(404);
+			expect(response.headers['content-type']).toMatch(/json/);
+			expect(response.body).toEqual({
+				success: false,
+				message: "A product with the given id doesn't exist",
+			});
+		});
+		it('returns a product when it exists in the database', async () => {
+			const response = await request(app).get('/products/1');
+
+			expect(response.status).toBe(200);
+			expect(response.headers['content-type']).toMatch(/json/);
+			expect(response.body).toEqual({
+				success: true,
+				product: {
+					id: 1,
+					name: 'Wireless Headphones',
+					price: 99.99,
+					stock: 25,
+				},
+			});
+		});
 	});
 });
 

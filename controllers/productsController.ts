@@ -22,17 +22,32 @@ async function addProduct(req: Request, res: Response, next: NextFunction) {
 	}
 }
 
-function getAllProducts(req: Request, res: Response) {
-	res.status(200).json({ success: true, products: db });
+async function getAllProducts(req: Request, res: Response) {
+	const products = await prisma.product.findMany();
+
+	res.status(200).json({ success: true, products });
 }
 
-function getProductById(req: Request, res: Response) {
-	const product = db[Number(req.params.id) - 1];
+async function getProductById(req: Request, res: Response) {
+	const id = Number(req.params.id);
+
+	if (Number.isNaN(id)) {
+		res
+			.status(400)
+			.json({ success: false, message: 'Received invalid product id' });
+	}
+
+	const product = await prisma.product.findUnique({
+		where: {
+			id: id,
+		},
+	});
 
 	if (!product) {
-		res
-			.status(404)
-			.json({ success: false, message: "That item doesn't exist" });
+		res.status(404).json({
+			success: false,
+			message: "A product with the given id doesn't exist",
+		});
 	} else {
 		res.status(200).json({ success: true, product: product });
 	}
