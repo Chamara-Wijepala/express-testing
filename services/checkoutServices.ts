@@ -1,10 +1,11 @@
 import db from '../db/db.json';
+import type { Product } from '@prisma/client';
 import type { Order } from '../types';
 
-export function validateOrder(order: Order[]): {
-	isValid: boolean;
-	message?: string;
-} {
+export function validateOrder(
+	order: undefined | [] | Order[],
+	products: Product[]
+) {
 	if (!order) {
 		return { isValid: false, message: 'No order received' };
 	}
@@ -19,7 +20,7 @@ export function validateOrder(order: Order[]): {
 	}
 	if (typeof order[0].id === 'number' && typeof order[0].qty === 'number') {
 		for (let i = 0; i < order.length; i++) {
-			if (order[i].qty > db[order[i].id - 1].stock) {
+			if (order[i].qty > products[order[i].id - 1].stock) {
 				return {
 					isValid: false,
 					message: 'An item in the order exceeds the current stock',
@@ -32,12 +33,12 @@ export function validateOrder(order: Order[]): {
 	return { isValid: false, message: 'There was an unknown error' };
 }
 
-export function calculateTotalPrice(order: Order[]) {
+export function calculateTotalPrice(order: Order[], products: Product[]) {
 	const shippingCost = 49.99;
-	let total = 0;
 
+	let total = 0;
 	for (let i = 0; i < order.length; i++) {
-		total += db[order[i].id - 1].price * order[i].qty;
+		total += products[order[i].id - 1].price * order[i].qty;
 	}
 
 	if (total < 400) total += shippingCost;

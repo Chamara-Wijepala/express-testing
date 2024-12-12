@@ -1,3 +1,4 @@
+import db from '../db/db.json';
 import {
 	validateOrder,
 	calculateTotalPrice,
@@ -6,14 +7,14 @@ import {
 describe('Tests for validateOrder', () => {
 	test('should invalidate non-existent order', () => {
 		// @ts-ignore
-		expect(validateOrder(undefined)).toEqual({
+		expect(validateOrder(undefined, db)).toEqual({
 			isValid: false,
 			message: 'No order received',
 		});
 	});
 
 	test('should invalidate empty order', () => {
-		expect(validateOrder([])).toEqual({
+		expect(validateOrder([], db)).toEqual({
 			isValid: false,
 			message: 'Empty order received',
 		});
@@ -21,20 +22,20 @@ describe('Tests for validateOrder', () => {
 
 	test('should invalidate incorrect order', () => {
 		// @ts-ignore
-		expect(validateOrder([{ id: 1, foo: 'bar' }])).toEqual({
+		expect(validateOrder([{ id: 1, foo: 'bar' }], db)).toEqual({
 			isValid: false,
 			message: 'The order does not match the correct format',
 		});
 	});
 
 	test('should validate correct order format', () => {
-		expect(validateOrder([{ id: 1, qty: 2 }])).toEqual({
+		expect(validateOrder([{ id: 1, qty: 2 }], db)).toEqual({
 			isValid: true,
 		});
 	});
 
 	test('should invalidate if quantity exceeds stock', () => {
-		expect(validateOrder([{ id: 1, qty: 26 }])).toEqual({
+		expect(validateOrder([{ id: 1, qty: 26 }], db)).toEqual({
 			isValid: false,
 			message: 'An item in the order exceeds the current stock',
 		});
@@ -52,7 +53,7 @@ describe('Tests for calculateTotalPrice', () => {
 			{ id: 10, qty: 4 },
 		];
 
-		expect(calculateTotalPrice(order)).toBe('409.91');
+		expect(calculateTotalPrice(order, db)).toBe('409.91');
 	});
 
 	test('should exclude shipping costs if total price is 400 and over', () => {
@@ -65,6 +66,6 @@ describe('Tests for calculateTotalPrice', () => {
 			{ id: 10, qty: 4 },
 		];
 
-		expect(calculateTotalPrice(order)).toBe('659.91');
+		expect(calculateTotalPrice(order, db)).toBe('659.91');
 	});
 });
