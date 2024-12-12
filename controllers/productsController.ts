@@ -93,7 +93,6 @@ async function updateProductById(
 
 async function deleteProductById(req: Request, res: Response) {
 	const id = Number(req.params.id);
-	// const productIndex = db.findIndex((product) => product.id === Number(id));
 
 	if (Number.isNaN(id)) {
 		res
@@ -116,16 +115,6 @@ async function deleteProductById(req: Request, res: Response) {
 			message: 'Product not found',
 		});
 	}
-
-	// if (productIndex === -1) {
-	// 	res.status(404).json({ success: false, message: 'Product not found' });
-	// } else {
-	// 	db.splice(id - 1, 1);
-
-	// 	res
-	// 		.status(200)
-	// 		.json({ success: true, message: 'Product deleted successfully' });
-	// }
 }
 
 export default {

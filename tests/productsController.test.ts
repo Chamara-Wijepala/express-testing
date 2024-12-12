@@ -2,7 +2,6 @@ import request from 'supertest';
 import app from './test-app';
 import products from '../routes/productsRoutes';
 import prisma from '../db/prisma';
-import db from '../db/db.json';
 
 app.use('/products', products);
 
